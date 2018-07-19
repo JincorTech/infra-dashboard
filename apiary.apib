@@ -1,0 +1,534 @@
+FORMAT: 1A
+HOST: http://infra-dashboard:3000/
+
+# Secret_tech Infra-Dashboard
+
+Control your application in cloud.
+
+# ICO Dashboards Application
+
+Deploying, configuring and monitoring of ICO dashboards.
+
+## ICO Dashboards [/api/v1/app/ico]
+
+Get list of ico dashboards (for allowed only user by using of JWT).
+
+### Get dashboards [GET]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "d28e05de-242f-48c0-bf3d-ae2a5547499b",
+                "title": "Superflow ICO",
+                "site": "https://ico.superflow.com",
+                "realHostIps": ["123.123.123.123", "123.123.123.124"]
+            }
+        ]
+
+
+### Create new dashboard [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
+    + Attributes
+
+        + name (string, required) - The title of ICO
+
+    + Body
+
+            {
+                "title": "Superflow ICO"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "id": "d28e05de-242f-48c0-bf3d-ae2a5547499b",
+            "title": "Superflow ICO"
+        }
+
+## Dashboard [/api/v1/app/ico/{id}]
+
+Get info for concrete dashboard (for allowed only user by using of JWT).
+
+### Get dashboard [GET]
+
++ Parameters
+
+    + id (string, required) - UUID as id for ICO dashboard.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "id": "d28e05de-242f-48c0-bf3d-ae2a5547499b",
+            "title": "Superflow ICO",
+            "frontendUrl": "https://ico.superflow.com",
+            "backendUrl": "https://api.ico.superflow.com",
+            "realHostIps": ["123.123.123.123", "123.123.123.124"],
+            "tokenAddress": "0x1a164bd1a4bd6f26726dba43972a91b20e7d93be",
+            "tokenPriceUsd": "1.0"
+        }
+
+### Set Common Dashboard Settings [POST]
+
++ Parameters
+
+    + id (string, required) - UUID as id for ICO dashboard.
+
++ Request (application/json)
+
+    + Attributes
+
+        + title (string) - The name of ICO
+        + frontendUrl (string) - URL of frontend
+        + backendUrl (string) - URL of backend
+        + tokenAddress (string) - address of smart contract for ICO token.
+        + tokenPriceUsd (string) - explicitly set token price in USD.
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
+    + Body
+
+            {
+                "title": "Super-Delux ICO"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "id": "d28e05de-242f-48c0-bf3d-ae2a5547499b",
+            "title": "Super-Delux ICO",
+            "frontendUrl": "https://ico.superflow.com",
+            "backendUrl": "https://api.ico.superflow.com",
+            "realHostIps": ["123.123.123.123", "123.123.123.124"],
+            "tokenAddress": "0x1a164bd1a4bd6f26726dba43972a91b20e7d93be",
+            "tokenPriceUsd": "1.0"
+        }
+
+
+
+
+## Dashboard Monitor [/api/v1/app/ico/{id}/info/monitor]
+
+Get dashboard live status.
+
+### Get Common Information [GET]
+
++ Parameters
+
+    + id (string, required) - UUID as id for ICO dashboard.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    {
+        "stacks": {
+            "backend": {
+                "status": "live"
+            },
+            "frontend": {
+                "status": "live"
+            }
+        }
+    }
+
+
+## Dashboard ICO Blockchain [/api/v1/app/ico/{id}/settings/blockchain]
+
+Control blockchain settings.
+
+### Get Dashboard Blockchain Settings [GET]
+
++ Parameters
+
+    + id (string, required) - UUID as id for ICO dashboard.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "defaultInvestGas": "130000",
+            "purchaseGasLimit": "100000",
+            "ethStartScanBlock": "3000000"
+        }
+
+
+### Set Dashboard Blockchain Settings [POST]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Attributes
+
+        + defaultInvestGas (string) - numeric value of default invest gas.
+        + purchaseGasLimit (string) - numeric value for limiting of gas when purchase.
+        + ethStartScanBlock (number) - number with which start scanning of blocks.
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
+    + Body
+
+            {
+                "defaultInvestGas": "150000"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "defaultInvestGas": "150000",
+            "purchaseGasLimit": "100000",
+            "ethStartScanBlock": "3000000"
+        }
+
+## Dashboard Exchanges [/api/v1/app/ico/{id}/settings/exchange]
+
+Control exchange settings.
+
+### Get Exchange Settings [GET]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "type": "coinpayments",
+            "settings": {
+                "currency1": "ETH"
+            }
+        }
+
+### Set Exchange Settings [POST]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Attributes
+
+        + type (string, required) - exchange type.
+        + settings (object, required) - depends on exchange type.
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
+    + Body
+
+            {
+                "type": "coinpayments",
+                "settings": {
+                    "currency1": "ETH",
+                    "secret": "SECRET1",
+                    "merchantId": "ID",
+                    "merchantSecret": "SECRET2"
+                }
+            }
+
++ Response 200 (application/json)
+
+        {
+            "type": "coinpayments",
+            "settings": {
+                "currency1": "ETH"
+            }
+        }
+
+## Dashboard KYCs [/api/v1/app/ico/{id}/settings/kyc]
+
+Control KYC settings.
+
+### Get KYC [GET]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "enabled": true,
+            "defaultStatus": "not_verified",
+            "type": "jumio"
+        }
+
+
+### Set KYC [POST]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Attributes
+
+        + enabled (boolean) - is kyc enabled.
+        + defaultStatus (string) - default user status: not_verified.
+        + type (string) - kyc provider: jumio, shuftipro.
+        + settings (object) - depends on provider.
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
+    + Body
+
+            {
+                "enabled": true,
+                "defaultStatus": "not_verified",
+                "type": "jumio",
+                "settings": {
+                    "baseUrl": "https://kyc.example.com",
+                    "token": "api_token",
+                    "secret": "api_secret",
+                    "tokenLifetime": "5184000"
+                }
+            }
+
++ Response 200 (application/json)
+
+        {
+            "enabled": true,
+            "defaultStatus": "not_verified",
+            "type": "jumio"
+        }
+
+
+## Dashboard E-mail [/api/v1/app/ico/{id}/settings/email]
+
+Control E-mail settings.
+
+### Get E-mail Settings [GET]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "templateFolder": "default",
+            "from": "noreply@superflow.com",
+            "referral": "partners@superflow.com",
+            "provider": {
+                "type": "mailgun"
+            }
+        }
+
+
+### Set E-mail Settings [POST]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Attributes
+
+        + templateFolder (string) - template folder in the container sources.
+        + from (string) - from email.
+        + referral (string) - referral email.
+        + provider (object) - email provider.
+            + type (string, required) - mailjet or mailgun.
+            + settings (object, required) - depends on provider.
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
+    + Body
+
+            {
+                "from": "superflow@superflow.com",
+                "provider": {
+                    "type": "mailgun",
+                    "settings": {
+                        "domain": "domain.com",
+                        "apiKey": "key-12341234"
+                    }
+                }
+            }
+
++ Response 200 (application/json)
+
+        {
+            "templateFolder": "default",
+            "from": "superflow@superflow.com",
+            "referral": "partners@superflow.com",
+            "provider": {
+                "type": "mailgun"
+            }
+        }
+
+
+## Dashboard Features [/api/v1/app/ico/{id}/settings/features]
+
+Control features settings.
+
+### Get Features [GET]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        {
+            "icoAddress": "0x7672210729e053B2462D39CF3746A5d19B405aAD",
+            "icoEndTimestamp": "1517443900"
+        }
+
+### Set Features [GET]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Attributes
+
+        + icoAddress (string) - address of ico smart contract.
+        + icoEndTimestamp `1517443200` (string) - explicitly timestamp of ico end.
+
+        + whitelistAddress (string) - address of whitelist smart contract.
+        + whitelistPk (string) - private key for whitelist contract.
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
+    + Body
+
+            {
+                "icoEndTimestamp": "1517443900"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "icoAddress": "0x7672210729e053B2462D39CF3746A5d19B405aAD",
+            "icoEndTimestamp": "1517443900"
+        }
+
+## Dashboard Apply Settings [/api/v1/app/ico/{id}/settings/apply]
+
+Apply changed configuration.
+
+### Apply Settings [POST]
+
++ Parameters
+
+    + id (string, required) - UUID as id for dashboard.
+
++ Request (application/json)
+
+    + Attributes
+
+        + uuid (string, required) - Explicitly specified UUID of dashboard.
+
+    + Headers
+
+            Authorization: Bearer JWTTOKEN
+            Accept: application/json
+
+    + Body
+
+            {
+                "id": "d28e05de-242f-48c0-bf3d-ae2a5547499b"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "id": "d28e05de-242f-48c0-bf3d-ae2a5547499b",
+            "status": "pending"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "id": "d28e05de-242f-48c0-bf3d-ae2a5547499b",
+            "status": "error",
+            "message": "Something happened",
+            "details": "Details"
+        }
+

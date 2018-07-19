@@ -1,0 +1,10 @@
+{
+  "extends": ["tslint-config-standard"],
+  "rules": {
+    "quotemark": [true, "single"],
+    "semicolon": [true, "always"],
+    "space-before-function-paren": [true, "never"],
+    "member-ordering": [false],
+    "handle-callback-err": [false]
+  }
+}

@@ -1,0 +1,5 @@
+.git
+npm-debug.log
+coverage
+.nyc_output
+.env
