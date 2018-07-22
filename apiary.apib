@@ -241,7 +241,7 @@ Control exchange settings.
 + Response 200 (application/json)
 
         {
-            "type": "coinpayments",
+            "provider": "coinpayments",
             "settings": {
                 "currency1": "ETH"
             }
@@ -257,8 +257,8 @@ Control exchange settings.
 
     + Attributes
 
-        + type (string, required) - exchange type.
-        + settings (object, required) - depends on exchange type.
+        + provider (string, required) - exchange provider.
+        + settings (object, required) - depends on exchange provider.
 
     + Headers
 
@@ -268,7 +268,7 @@ Control exchange settings.
     + Body
 
             {
-                "type": "coinpayments",
+                "provider": "coinpayments",
                 "settings": {
                     "currency1": "ETH",
                     "secret": "SECRET1",
@@ -280,7 +280,7 @@ Control exchange settings.
 + Response 200 (application/json)
 
         {
-            "type": "coinpayments",
+            "provider": "coinpayments",
             "settings": {
                 "currency1": "ETH"
             }
@@ -308,7 +308,7 @@ Control KYC settings.
         {
             "enabled": true,
             "defaultStatus": "not_verified",
-            "type": "jumio"
+            "provider": "jumio"
         }
 
 
@@ -324,7 +324,7 @@ Control KYC settings.
 
         + enabled (boolean) - is kyc enabled.
         + defaultStatus (string) - default user status: not_verified.
-        + type (string) - kyc provider: jumio, shuftipro.
+        + provider (string) - kyc provider: jumio, shuftipro.
         + settings (object) - depends on provider.
 
     + Headers
@@ -337,7 +337,7 @@ Control KYC settings.
             {
                 "enabled": true,
                 "defaultStatus": "not_verified",
-                "type": "jumio",
+                "provider": "jumio",
                 "settings": {
                     "baseUrl": "https://kyc.example.com",
                     "token": "api_token",
@@ -351,7 +351,7 @@ Control KYC settings.
         {
             "enabled": true,
             "defaultStatus": "not_verified",
-            "type": "jumio"
+            "provider": "jumio"
         }
 
 
@@ -378,9 +378,7 @@ Control E-mail settings.
             "templateFolder": "default",
             "from": "noreply@superflow.com",
             "referral": "partners@superflow.com",
-            "provider": {
-                "type": "mailgun"
-            }
+            "provider": "mailgun"
         }
 
 
@@ -397,9 +395,8 @@ Control E-mail settings.
         + templateFolder (string) - template folder in the container sources.
         + from (string) - from email.
         + referral (string) - referral email.
-        + provider (object) - email provider.
-            + type (string, required) - mailjet or mailgun.
-            + settings (object, required) - depends on provider.
+        + provider (string, required) - provider: mailjet or mailgun.
+        + settings (object, required) - depends on provider.
 
     + Headers
 
@@ -410,12 +407,10 @@ Control E-mail settings.
 
             {
                 "from": "superflow@superflow.com",
-                "provider": {
-                    "type": "mailgun",
-                    "settings": {
-                        "domain": "domain.com",
-                        "apiKey": "key-12341234"
-                    }
+                "provider": "mailgun",
+                "settings": {
+                    "domain": "domain.com",
+                    "apiKey": "key-12341234"
                 }
             }
 
@@ -425,9 +420,7 @@ Control E-mail settings.
             "templateFolder": "default",
             "from": "superflow@superflow.com",
             "referral": "partners@superflow.com",
-            "provider": {
-                "type": "mailgun"
-            }
+            "provider": "mailgun"
         }
 
 

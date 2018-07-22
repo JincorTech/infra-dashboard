@@ -17,6 +17,8 @@ import {
   errorLoggerMiddleware
 } from './middlewares/request.logger';
 import { InversifyExpressServer } from 'inversify-express-utils';
+import { createConnection, ConnectionOptions } from 'typeorm';
+import { resolve } from 'url';
 
 const logger = Logger.get('Process');
 
@@ -75,6 +77,10 @@ export default class Application {
     expressApp.use(bodyParser.urlencoded({ extended: false }));
   }
 
+  /**
+   *
+   * @param expressApp
+   */
   configureExpressErrors(expressApp) {
     expressApp.use(notFoundRouteMiddleware());
 
@@ -83,13 +89,30 @@ export default class Application {
   }
 
   /**
-   * Запуск HTTP сервера
+   *
    */
-  serveHttp() {
+  async serveHttp() {
     this.logger.debug('Create HTTP server...');
     const httpServer = http.createServer(this.buildApplication());
 
     httpServer.listen(config.http.port, config.http.ip);
     this.logger.info('Listen HTTP on %s:%s', config.http.ip, config.http.port);
+
+    return new Promise((resolve, reject) => {
+      httpServer.on('close', () => {
+        resolve();
+      });
+      httpServer.on('error', (err: Error) => {
+        reject(err);
+      });
+    });
+  }
+
+  /**
+   *
+   */
+  async run() {
+    await createConnection(config.typeOrm as ConnectionOptions);
+    await this.serveHttp();
   }
 }

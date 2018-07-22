@@ -8,12 +8,16 @@ import { DashboardMonitorController } from './web/controllers/icodashboard/monit
 import { IcoDashboardApp, IcoDashboardAppType } from './services/app/ico.dashboards.app';
 import { IcoMonitorApp, IcoMonitorAppType } from './services/app/ico.monitor.app';
 import { IcoSettingsApp, IcoSettingsAppType } from './services/app/ico.settings.app';
+import { IcoDashboardDao, IcoDashboardDaoType } from './services/dao/ico.dashboard.dao';
+import { IcoDashboardSettingsDao, IcoDashboardSettingsDaoType } from './services/dao/ico.dashboard.settings.dao';
 
 /* istanbul ignore next */
 export function buildServicesContainerModule(): ContainerModule {
   return new ContainerModule((
     bind, unbind, isBound, rebind
   ) => {
+    bind<IcoDashboardDao>(IcoDashboardDaoType).to(IcoDashboardDao);
+    bind<IcoDashboardSettingsDao>(IcoDashboardSettingsDaoType).to(IcoDashboardSettingsDao);
   });
 }
 

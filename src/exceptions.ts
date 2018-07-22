@@ -17,3 +17,13 @@ export class NotFoundException extends Exception {
     this.httpStatusCode = 404;
   }
 }
+
+/**
+ * ValidationException .
+ */
+export class ValidationException extends Exception {
+  constructor(details?: any, msg: string = 'Invalid request') {
+    super(msg, details);
+    this.httpStatusCode = 422;
+  }
+}

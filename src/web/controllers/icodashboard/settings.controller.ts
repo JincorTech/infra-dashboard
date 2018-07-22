@@ -5,6 +5,7 @@ import { controller, httpPost, httpGet } from 'inversify-express-utils';
 
 import { responseWith } from '../../helpers/responses';
 import { IcoSettingsAppType, IcoSettingsApp } from '../../../services/app/ico.settings.app';
+import { joiValidateMiddleware } from '../../middlewares/request.validation';
 
 /**
  * Settings controller
@@ -32,7 +33,13 @@ export class DashboardSettingsController {
    * Set blockchain settings
    */
   @httpPost(
-    '/blockchain'
+    '/blockchain',
+    joiValidateMiddleware(Joi.object().keys({
+      nodeUrl: Joi.string().required(),
+      defaultInvestGas: Joi.string(),
+      purchaseGasLimit: Joi.string(),
+      ethStartScanBlock: Joi.string()
+    }))
   )
   async setBlockchainSettings(req: Request, res: Response): Promise<void> {
     responseWith(res, await this.settingsApp.setBlockchainSettings(req.params.id, req.body));
@@ -52,7 +59,12 @@ export class DashboardSettingsController {
    * Set exchange settings
    */
   @httpPost(
-    '/exchange'
+    '/exchange',
+    joiValidateMiddleware(Joi.object().keys({
+      enabled: Joi.boolean().required(),
+      provider: Joi.string(),
+      settings: Joi.object()
+    }))
   )
   async setExchangeSettings(req: Request, res: Response): Promise<void> {
     responseWith(res, await this.settingsApp.setExchangeSettings(req.params.id, req.body));
@@ -72,7 +84,13 @@ export class DashboardSettingsController {
    * Set kyc settings
    */
   @httpPost(
-    '/kyc'
+    '/kyc',
+    joiValidateMiddleware(Joi.object().keys({
+      enabled: Joi.boolean().required(),
+      defaultStatus: Joi.string().required(),
+      provider: Joi.string(),
+      settings: Joi.object()
+    }))
   )
   async setKycSettings(req: Request, res: Response): Promise<void> {
     responseWith(res, await this.settingsApp.setKycSettings(req.params.id, req.body));
@@ -92,7 +110,13 @@ export class DashboardSettingsController {
    * Set email settings
    */
   @httpPost(
-    '/email'
+    '/email',
+    joiValidateMiddleware(Joi.object().keys({
+      enabled: Joi.boolean().required(),
+      defaultStatus: Joi.string().required(),
+      provider: Joi.string(),
+      settings: Joi.object()
+    }))
   )
   async setEmailSettings(req: Request, res: Response): Promise<void> {
     responseWith(res, await this.settingsApp.setEmailSettings(req.params.id, req.body));
@@ -112,7 +136,13 @@ export class DashboardSettingsController {
    * Set features settings
    */
   @httpPost(
-    '/features'
+    '/features',
+    joiValidateMiddleware(Joi.object().keys({
+      icoAddress: Joi.string(),
+      icoEndTimestamp: Joi.string(),
+      whitelistAddress: Joi.string(),
+      whitelistPk: Joi.string()
+    }))
   )
   async setFeaturesSettings(req: Request, res: Response): Promise<void> {
     responseWith(res, await this.settingsApp.setFeaturesSettings(req.params.id, req.body));
@@ -122,7 +152,10 @@ export class DashboardSettingsController {
    * Apply settings
    */
   @httpPost(
-    '/apply'
+    '/apply',
+    joiValidateMiddleware(Joi.object().keys({
+      id: Joi.string().required()
+    }))
   )
   async applySettings(req: Request, res: Response): Promise<void> {
     responseWith(res, await this.settingsApp.applySettings(req.body));

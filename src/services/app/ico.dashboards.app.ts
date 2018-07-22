@@ -1,48 +1,39 @@
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
+import { IcoDashboardDaoType, IcoDashboardDao } from "../dao/ico.dashboard.dao";
+import { Dashboard } from "../../domain/ico/dashboard";
+import { ObjectID } from "typeorm";
+import { outputTransform } from "./helpers";
 
 export const IcoDashboardAppType = Symbol('IcoDashboardApp');
 
 @injectable()
 export class IcoDashboardApp {
+  constructor(
+    @inject(IcoDashboardDaoType) protected dashboardDao: IcoDashboardDao
+  ) {
+  }
+
   async getDashboards(): Promise<any[]> {
-    return [
-      {
-        id: "d28e05de-242f-48c0-bf3d-ae2a5547499b",
-        title: "Superflow ICO",
-        site: "https://ico.superflow.com",
-        realHostIps: ["123.123.123.123", "123.123.123.124"]
-      }
-    ];
+    return outputTransform(this.dashboardDao.getAllByUser(null));
   }
 
   async createDashboard(data: object): Promise<object> {
-    return {
-      id: "d28e05de-242f-48c0-bf3d-ae2a5547499b",
-      title: "Superflow ICO"
-    };
+    const dashboard = new Dashboard();
+
+    dashboard.assignFrom(data);
+
+    return outputTransform(await this.dashboardDao.save(dashboard));
   }
 
   async getDashboardInfo(id: string): Promise<object> {
-    return {
-      id: "d28e05de-242f-48c0-bf3d-ae2a5547499b",
-      title: "Superflow ICO",
-      frontendUrl: "https://ico.superflow.com",
-      backendUrl: "https://api.ico.superflow.com",
-      realHostIps: ["123.123.123.123", "123.123.123.124"],
-      tokenAddress: "0x1a164bd1a4bd6f26726dba43972a91b20e7d93be",
-      tokenPriceUsd: "1.0"
-    };
+    return this.dashboardDao.getAllById(ObjectID.createFromHexString(id));
   }
 
   async setDashboardInfo(id: string, data: object): Promise<object> {
-    return {
-      id: "d28e05de-242f-48c0-bf3d-ae2a5547499b",
-      title: "Super-Delux ICO",
-      frontendUrl: "https://ico.superflow.com",
-      backendUrl: "https://api.ico.superflow.com",
-      realHostIps: ["123.123.123.123", "123.123.123.124"],
-      tokenAddress: "0x1a164bd1a4bd6f26726dba43972a91b20e7d93be",
-      tokenPriceUsd: "1.0"
-    };
+    const dashboard = await this.dashboardDao.getAllById(ObjectID.createFromHexString(id));
+
+    dashboard.assignFrom(data);
+
+    return outputTransform(dashboard);
   }
 }

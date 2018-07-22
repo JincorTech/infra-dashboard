@@ -6,7 +6,7 @@ import { container } from '../ioc.container';
 
 async function main() {
   const app = new Application(container);
-  app.serveHttp();
+  await app.run();
 }
 
 main();
