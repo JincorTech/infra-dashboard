@@ -1,5 +1,5 @@
-import 'reflect-metadata';
 import * as dotenv from 'dotenv';
+import 'reflect-metadata';
 
 dotenv.config();
 
@@ -13,7 +13,7 @@ const {
   HTTP_ACCESS_LOGGING,
   HTTP_BIND,
 
-  DEPLOYER_HELPER_URL,
+  DEPLOY_HELPER_URL,
 
   MONGO_URL,
   MONGO_AUTH_SOURCE,
@@ -36,8 +36,8 @@ export default {
     port: parseInt(HTTP_PORT, 10) || 3000,
     ip: HTTP_IP || '0.0.0.0'
   },
-  deployerHelper: {
-    url: DEPLOYER_HELPER_URL
+  deployHelper: {
+    url: DEPLOY_HELPER_URL
   },
   typeOrm: {
     type: 'mongodb',

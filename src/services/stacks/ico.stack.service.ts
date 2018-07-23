@@ -7,16 +7,60 @@ export interface StackServiceBuilder {
 }
 
 export class IcoDashboardStackBuilder implements StackServiceBuilder {
-  constructor(protected namespace: string, protected dashboard: Dashboard) {
+  protected mongoUrl: string;
+  protected redisUrl: string;
+  protected authUrl: string;
+  protected verifyUrl: string;
+  protected loggingLevel: string;
+  protected links: string[];
+  protected constructAuth: {};
+
+  constructor(protected dashboard: Dashboard, protected namespace: string, loggingLevel: string) {
+    this.loggingLevel = loggingLevel || 'debug';
+  }
+
+  setMongo(mongoUrl: string, linksTo?: string) {
+    this.mongoUrl = mongoUrl || (`mongodb://mongo/${this.namespace}?authSource=admin`);
+    if (linksTo) {
+      this.links.push('mongo:' + linksTo);
+    }
+  }
+
+  setRedis(redisUrl: string, linksTo?: string) {
+    this.redisUrl = redisUrl || 'redis://redis';
+    if (linksTo) {
+      this.links.push('redis:' + linksTo);
+    }
+  }
+
+  setAuthverify(authUrl: string, verifyUrl: string, linksTo?: string) {
+    this.authUrl = authUrl || 'http://auth:3000';
+    this.verifyUrl = verifyUrl || 'http://verify:3000';
+    if (linksTo) {
+      this.links.push('authverify:' + linksTo);
+    }
+  }
+
+  setAuthAccess(authJwt?: string, newTenant?: {
+    tenantEmail: string;
+    tenantPassword: string;
+    tenantClient: string;
+  }) {
+    if (authJwt) {
+      this.constructAuth = { 'construct.auth_jwt': authJwt };
+    } else {
+      this.constructAuth = {
+        'construct.tenant_email': newTenant.tenantEmail,
+        'construct.tenant_password': newTenant.tenantPassword,
+        'construct.tenant_client': newTenant.tenantClient
+      };
+    }
   }
 
   buildDeployHelperJSONRequest() {
     const frontend = url.parse(this.dashboard.frontendUrl);
     const backend = url.parse(this.dashboard.backendUrl);
-    const dashboard = this.dashboard;
-    const settings = this.dashboard.settings;
 
-    // @TODO: Escape values
     return {
       'name': `${this.namespace}_app`,
       'stack': 'app',
@@ -25,14 +69,31 @@ export class IcoDashboardStackBuilder implements StackServiceBuilder {
         'services.frontend.image': 'alekns/frontend-ico-dashboard:latest',
         'services.frontend.limits.memory': '1024M',
         'services.frontend.limits.cpus': '1.0',
-        'ingress.backend.expose': `route://${backend.hostname}:3000?${backend.path}&limitter=1s,12,16`,
+        'ingress.backend.expose': `route://${backend.hostname}:3000${backend.path}?limitter=1s,8,12,10s,30,40`,
         'services.backend.image': 'alekns/backend-ico-dashboard:latest',
         'services.backend.limits.memory': '1024M',
         'services.backend.limits.cpus': '1.0',
-        'services.backend.envs': `
+        'services.backend.envs': this.buildEnvFile(),
+        ...this.constructAuth,
+        'construct.auth_url': this.authUrl,
+        'construct.verify_url': this.verifyUrl,
+        'construct.redis_url': this.redisUrl,
+        'construct.mongo_url': this.mongoUrl
+      },
+      'links': this.links
+    }
+  }
+
+  buildEnvFile() {
+    const dashboard = this.dashboard;
+    const settings = this.dashboard.settings;
+    const blockchainNode = url.parse(this.dashboard.settings.blockchain.nodeUrl);
+    const blockchainNodeSchema = (blockchainNode.protocol || 'http:').slice(0, -1);
+
+    // @TODO: Escape values
+    return `
 ENVIRONMENT=production
 COMPANY_NAME=${dashboard.title}
-TOKEN_PRICE_USD=${dashboard.token.priceUsd}
 API_URL=${dashboard.backendUrl}
 FRONTEND_URL=${dashboard.frontendUrl}
 
@@ -43,12 +104,13 @@ MONGO_REPLICA_SET=replica
 
 SC_ABI_FOLDER=contracts/default
 ICO_SC_ADDRESS=${settings.features.icoAddress}
-WHITELIST_SC_ADDRESS=${settings.features.whitelistAddress}
 TOKEN_ADDRESS=${dashboard.token.address}
+TOKEN_PRICE_USD=${dashboard.token.priceUsd}
+WHITELIST_SC_ADDRESS=${settings.features.whitelistAddress}
 WL_OWNER_PK=${settings.features.whitelistPk}
 TEST_FUND_PK=
 
-RPC_TYPE=http
+RPC_TYPE=${blockchainNodeSchema}
 RPC_ADDRESS=${settings.blockchain.nodeUrl}
 WEB3_RESTORE_START_BLOCK=${settings.blockchain.ethStartScanBlock}
 WEB3_BLOCK_OFFSET=200
@@ -79,7 +141,7 @@ KYC_PROVIDER=${settings.kyc.provider}
 KYC_JUMIO_BASE_URL=${settings.kyc.settings.baseUrl}
 KYC_JUMIO_TOKEN=${settings.kyc.settings.token}
 KYC_JUMIO_SECRET=${settings.kyc.settings.secret}
-# KYC_JUMIO_TOKEN_LIFETIME=5184000
+KYC_JUMIO_TOKEN_LIFETIME=${settings.kyc.settings.tokenLifetime}
 
 # Shufti Pro provider
 KYC_SHUFTIPRO_CLIENT_ID=${settings.kyc.settings.clientId}
@@ -90,65 +152,6 @@ KYC_SHUFTIPRO_ALLOW_RECREATE_SESSION=${settings.kyc.settings.allowRecreateSessio
 KYC_SHUFTIPRO_DEFAULT_PHONE=${settings.kyc.settings.defaultPhone}
 
 ACCESS_LOG=true
-LOGGING_LEVEL=debug
-  `,
-        'construct.tenant_email': 'test@testtest.com',
-        'construct.tenant_password': 'aQWERqreRer342',
-        'construct.tenant_client': '...',
-        'construct.auth_url': 'http://auth:3000',
-        'construct.verify_url': 'http://verify:3000',
-        'construct.redis_url': 'redis://redis:Werttji5490xVg6r5@redis',
-        'construct.mongo_url': 'mongodb://user:Werttj@mongo-1/ico?authSource=admin'
-      },
-      'links': ['authverify:global_authverify', 'mongo:global_mongo', 'redis:global_redis']
-    }
+LOGGING_LEVEL=${this.loggingLevel}`;
   }
 }
-// {
-//   'name': ''$REDIS_NS'_redis',
-//   'stack': 'redis',
-//   'context': {
-//       'services.redis.limits.memory': '1024M',
-//       'construct.type': 'single',
-//       'construct.auth_password': 'Werttji5490xVg6r5'
-//   },
-//   'links': []
-// }
-
-// {
-//   'name': ''$MONGO_NS'_mongo',
-//   'stack': 'mongo',
-//   'context': {
-//     'services.mongo.limits': '1024M',
-//     'services.mongo.cpus': '1.0',
-//     'construct.type': 'single',
-//     'construct.admin_password': 'qwerty',
-//     'construct.dbs': [{'db': 'ico', 'user': 'user', 'password': 'Werttj'}],
-//     'construct.shared_key': '123EAABCC12341234123412341234'
-//   },
-//   'links': []
-// }
-
-// {
-//   'name': ''$AUTHVERIFY_NS'_authverify',
-//   'stack': 'authverify',
-//   'context': {
-//     'ingress.auth.expose': 'route://auth.com:3000?limitter=1s,4,6,10s,20,30',
-//     'services.auth.limits.memory': '1024M',
-//     'services.auth.limits.cpus': '1.0',
-//     'ingress.verify.expose': 'route://verify.com:3000?limitter=1s,4,6,10s,20,30',
-//     'services.verify.limits.memory': '1024M',
-//     'services.verify.limits.cpus': '1.0',
-//     'construct.jwt_key': 'Qr3r14rewqr9j8j98jrjhjnj54',
-//     'construct.redis_url': 'redis://redis:Werttji5490xVg6r5@redis',
-//     'construct.mail_provider': 'mailjet',
-//     'construct.mail_config': {
-//         '*MAILJET_API_KEY': 'e3affab4235dd1bea58b6b39bb26e034',
-//         '*MAILJET_API_SECRET': 'ae9a9aa605bfe3244c6d06ed661e7288'
-//     },
-//     'construct.tls.tenant_ca_cn': 'secrettech.deployav',
-//     'construct.tls.tenant_ca': '',
-//     'construct.tls.tenant_server': '...'
-//   },
-//   'links': ['redis:'$REDIS_NS'_redis']
-// }

@@ -8,7 +8,7 @@ export class DeployStack {
   protected baseUrl: string;
 
   constructor() {
-    this.baseUrl = config.deployerHelper.url;
+    this.baseUrl = config.deployHelper.url;
   }
 
   async deploy(builder: StackServiceBuilder) {

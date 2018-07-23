@@ -1,5 +1,12 @@
 import { Column } from 'typeorm';
 
+export enum KycStatus {
+  notVerified = 'not_verified',
+  verified = 'verified',
+  failed = 'failed',
+  pending = 'pending'
+}
+
 export class SettingsKyc {
   @Column()
   public enabled: boolean;
@@ -18,6 +25,7 @@ export class SettingsKyc {
   static create(data: any) {
     const o = new SettingsKyc();
     o.assignFrom(data);
+    o.defaultStatus = o.defaultStatus || KycStatus.notVerified;
     o.settings = {};
     return o;
   }
