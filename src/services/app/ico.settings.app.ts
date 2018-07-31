@@ -1,109 +1,139 @@
 import { injectable, inject } from "inversify";
-import { IcoDashboardSettingsDaoType, IcoDashboardSettingsDao } from "../dao/ico.dashboard.settings.dao";
-import { ObjectID } from "typeorm";
-import { outputTransform } from "./helpers";
+import { ObjectID } from "mongodb";
+import { IcoDashboardDaoType, IcoDashboardDao } from "../dao/ico.dashboard.dao";
 
 export const IcoSettingsAppType = Symbol('IcoSettingsApp');
 
 @injectable()
 export class IcoSettingsApp {
   constructor(
-    @inject(IcoDashboardSettingsDaoType) protected dashboardSettingsDao: IcoDashboardSettingsDao
+    @inject(IcoDashboardDaoType) protected dashboardDao: IcoDashboardDao
   ) {
   }
 
-  async getBlockchainSettings(id: string): Promise<object> {
-    const settings = await this.dashboardSettingsDao.getByDashboardId(ObjectID.createFromHexString(id));
-    return outputTransform(settings.blockchain);
+  /**
+   * @param id
+   */
+  async getBlockchainSettings(id: ObjectID): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    return dashboard.settingsBlockchain || {};
   }
 
-  async setBlockchainSettings(id: string, data: object): Promise<object> {
-    const objId = ObjectID.createFromHexString(id);
+  /**
+   * @param id
+   * @param data
+   */
+  async setBlockchainSettings(id: ObjectID, data: object): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    dashboard.settingsBlockchain.assignFrom(data);
 
-    const settings = await this.dashboardSettingsDao.getByDashboardId(objId);
-    settings.blockchain.assignFrom(data);
+    await this.dashboardDao.save(dashboard);
 
-    await this.dashboardSettingsDao.save(objId, settings);
-
-    return outputTransform(settings.blockchain);
+    return dashboard.settingsBlockchain;
   }
 
-  async getExchangeSettings(id: string): Promise<object> {
-    const settings = await this.dashboardSettingsDao.getByDashboardId(ObjectID.createFromHexString(id));
-    return outputTransform(settings.exchange);
+  /**
+   * @param id
+   */
+  async getExchangeSettings(id: ObjectID): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    return dashboard.settingsExchange || {};
   }
 
-  async setExchangeSettings(id: string, data: object): Promise<object> {
-    const objId = ObjectID.createFromHexString(id);
+  /**
+   * @param id
+   * @param data
+   */
+  async setExchangeSettings(id: ObjectID, data: object): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    dashboard.settingsExchange.assignFrom(data);
 
-    const settings = await this.dashboardSettingsDao.getByDashboardId(objId);
-    settings.exchange.assignFrom(data);
-    if (settings.exchange.enabled) {
-      // settings.exchange.provider == 'coinpayments'
+    if (dashboard.settingsExchange.enabled) {
+      // dashboard.settingsExchange.provider == 'coinpayments'
     }
 
-    await this.dashboardSettingsDao.save(objId, settings);
+    await this.dashboardDao.save(dashboard);
 
-    return outputTransform(settings.exchange);
+    return dashboard.settingsExchange;
   }
 
-  async getKycSettings(id: string): Promise<object> {
-    const settings = await this.dashboardSettingsDao.getByDashboardId(ObjectID.createFromHexString(id));
-    return outputTransform(settings.kyc);
+  /**
+   * @param id
+   */
+  async getKycSettings(id: ObjectID): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    return dashboard.settingsKyc || {};
   }
 
-  async setKycSettings(id: string, data: object): Promise<object> {
-    const objId = ObjectID.createFromHexString(id);
+  /**
+   * @param id
+   * @param data
+   */
+  async setKycSettings(id: ObjectID, data: object): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    dashboard.settingsKyc.assignFrom(data);
 
-    const settings = await this.dashboardSettingsDao.getByDashboardId(objId);
-    settings.kyc.assignFrom(data);
-    if (settings.kyc.enabled) {
-      // settings.kyc.provider == 'jumio'
-      // settings.kyc.provider == 'shuf'
+    if (dashboard.settingsKyc.enabled) {
+      // dashboard.settingsKyc.provider == 'jumio'
+      // dashboard.settingsKyc.provider == 'shuf'
     }
 
-    await this.dashboardSettingsDao.save(objId, settings);
+    await this.dashboardDao.save(dashboard);
 
-    return outputTransform(settings.kyc);
+    return dashboard.settingsKyc;
   }
 
-  async getEmailSettings(id: string): Promise<object> {
-    const settings = await this.dashboardSettingsDao.getByDashboardId(ObjectID.createFromHexString(id));
-    return outputTransform(settings.email);
+  /**
+   * @param id
+   */
+  async getEmailSettings(id: ObjectID): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    return dashboard.settingsEmail || {};
   }
 
-  async setEmailSettings(id: string, data: object): Promise<object> {
-    const objId = ObjectID.createFromHexString(id);
+  /**
+   * @param id
+   * @param data
+   */
+  async setEmailSettings(id: ObjectID, data: object): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    dashboard.settingsEmail.assignFrom(data);
 
-    const settings = await this.dashboardSettingsDao.getByDashboardId(objId);
-    settings.email.assignFrom(data);
-    // settings.email.provider == 'mailgun'
+    // dashboard.settingsEmail.provider == 'mailgun'
 
-    await this.dashboardSettingsDao.save(objId, settings);
+    await this.dashboardDao.save(dashboard);
 
-    return outputTransform(settings.email);
+    return dashboard.settingsEmail;
   }
 
-  async getFeaturesSettings(id: string): Promise<object> {
-    const settings = await this.dashboardSettingsDao.getByDashboardId(ObjectID.createFromHexString(id));
-    return outputTransform(settings.features);
+  /**
+   * @param id
+   */
+  async getFeaturesSettings(id: ObjectID): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    return dashboard.settingsFeatures || {};
   }
 
-  async setFeaturesSettings(id: string, data: object): Promise<object> {
-    const objId = ObjectID.createFromHexString(id);
+  /**
+   * @param id
+   * @param data
+   */
+  async setFeaturesSettings(id: ObjectID, data: object): Promise<object> {
+    const dashboard = await this.dashboardDao.getById(id);
+    dashboard.settingsFeatures.assignFrom(data);
 
-    const settings = await this.dashboardSettingsDao.getByDashboardId(objId);
-    settings.features.assignFrom(data);
+    await this.dashboardDao.save(dashboard);
 
-    await this.dashboardSettingsDao.save(objId, settings);
-
-    return outputTransform(settings.features);
+    return dashboard.settingsFeatures;
   }
 
-  async applySettings(id: string): Promise<object> {
-    return outputTransform({
-      id: "d28e05de-242f-48c0-bf3d-ae2a5547499b",
-      status: "pending"
-    });
+  /**
+   * @param id
+   */
+  async applySettings(id: ObjectID): Promise<object> {
+    return {
+      id,
+      status: 'pending'
+    };
   }
 }

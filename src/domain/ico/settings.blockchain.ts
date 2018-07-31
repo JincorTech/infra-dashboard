@@ -13,13 +13,13 @@ export class SettingsBlockchain {
   @Column()
   public ethStartScanBlock: string;
 
-  static create(data: any) {
+  static create(data: any = {}) {
     const o = new SettingsBlockchain();
     o.assignFrom(data);
     return o;
   }
 
-  assignFrom(data: any) {
+  assignFrom(data: any = {}) {
     this.nodeUrl = data.nodeUrl;
     this.defaultInvestGas = data.defaultInvestGas;
     this.purchaseGasLimit = data.purchaseGasLimit;

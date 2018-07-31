@@ -1,3 +1,5 @@
+import { ObjectID } from 'mongodb';
+
 type TransformMethod = (obj: any) => any;
 
 /**
@@ -5,25 +7,25 @@ type TransformMethod = (obj: any) => any;
  * @param method
  */
 export function transformDeepObjectKeysFn(obj: any, method: TransformMethod): any {
-  if (obj === null || typeof obj === 'undefined') {
+  if (obj === null || typeof obj === 'undefined' || obj instanceof ObjectID) {
     return obj;
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(o =>
+    obj.map(o =>
       transformDeepObjectKeysFn(o, method)
     );
   }
 
-  if (typeof obj === 'object') {
-    Object.keys(obj).forEach(attrName => {
-        obj[attrName] = transformDeepObjectKeysFn(
-          obj[attrName],
-          method
-        );
-      });
+  if (typeof obj === 'object' && obj.fieldsForTransform) {
+    obj = method(obj);
 
-    return method(obj);
+    Object.keys(obj).forEach(attrName => {
+      obj[attrName] = transformDeepObjectKeysFn(
+        obj[attrName],
+        method
+      );
+    });
   }
 
   return obj;
@@ -88,9 +90,10 @@ export const beforeStoreTransform = transformDeepObjectKeys(
   )
 );
 
-export const outputTransform = transformDeepObjectKeys(
-  combineTransforms(
-    mapCipher(Buffer.from(''), false),
-    transformOmitCipherFields()
-  )
-);
+export const outputTransform = obj => obj;
+// transformDeepObjectKeys(
+  // combineTransforms(
+    // mapCipher(Buffer.from(''), false),
+    // transformOmitCipherFields()
+  // )
+// );

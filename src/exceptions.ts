@@ -19,6 +19,16 @@ export class NotFoundException extends Exception {
 }
 
 /**
+ * InvalidRouteParameterException .
+ */
+export class InvalidRouteParameterException extends Exception {
+  constructor(details?: any, msg: string = 'Bad request') {
+    super(msg, details);
+    this.httpStatusCode = 400;
+  }
+}
+
+/**
  * ValidationException .
  */
 export class ValidationException extends Exception {

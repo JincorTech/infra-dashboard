@@ -3,13 +3,15 @@ import * as url from 'url';
 import { Dashboard } from "../../domain/ico/dashboard";
 
 export interface StackServiceBuilder {
-  buildDeployHelperJSONRequest();
+  buildJSONDeployRequest();
+  buildJSONUpdateRequest();
 }
 
 export class IcoDashboardStackBuilder implements StackServiceBuilder {
   protected mongoUrl: string;
   protected redisUrl: string;
   protected authUrl: string;
+  protected authJwt: string;
   protected verifyUrl: string;
   protected loggingLevel: string;
   protected links: string[];
@@ -47,7 +49,7 @@ export class IcoDashboardStackBuilder implements StackServiceBuilder {
     tenantClient: string;
   }) {
     if (authJwt) {
-      this.constructAuth = { 'construct.auth_jwt': authJwt };
+      this.constructAuth = { 'construct.set_auth_jwt': this.authJwt };
     } else {
       this.constructAuth = {
         'construct.tenant_email': newTenant.tenantEmail,
@@ -57,7 +59,11 @@ export class IcoDashboardStackBuilder implements StackServiceBuilder {
     }
   }
 
-  buildDeployHelperJSONRequest() {
+  buildJSONUpdateRequest() {
+    return this.buildJSONDeployRequest();
+  }
+
+  buildJSONDeployRequest() {
     const frontend = url.parse(this.dashboard.frontendUrl);
     const backend = url.parse(this.dashboard.backendUrl);
 
@@ -73,12 +79,8 @@ export class IcoDashboardStackBuilder implements StackServiceBuilder {
         'services.backend.image': 'alekns/backend-ico-dashboard:latest',
         'services.backend.limits.memory': '1024M',
         'services.backend.limits.cpus': '1.0',
-        'services.backend.envs': this.buildEnvFile(),
-        ...this.constructAuth,
-        'construct.auth_url': this.authUrl,
-        'construct.verify_url': this.verifyUrl,
-        'construct.redis_url': this.redisUrl,
-        'construct.mongo_url': this.mongoUrl
+        'services.backend.envfile': this.buildEnvFile(),
+        ...this.constructAuth
       },
       'links': this.links
     }
@@ -97,17 +99,34 @@ COMPANY_NAME=${dashboard.title}
 API_URL=${dashboard.backendUrl}
 FRONTEND_URL=${dashboard.frontendUrl}
 
-ICO_END_TIMESTAMP=${settings.features.icoEndTimestamp}
+THROTTLER_INTERVAL=20000
 
+REDIS_URL=${this.redisUrl}
+REDIS_PREFIX=${this.namespace}
+
+ORM_ENTITIES_DIR="dist/entities/**/*.js"
+ORM_SUBSCRIBER_DIR="dist/subscriber/**/*.js"
+ORM_MIGRATIONS_DIR="dist/migrations/**/*.js"
+
+MONGO_URL=${this.mongoUrl}
 MONGO_AUTH_SOURCE=admin
 MONGO_REPLICA_SET=replica
 
+AUTH_JWT=${this.authJwt}
+AUTH_BASE_URL=${this.authUrl}
+VERIFY_BASE_URL=${this.verifyUrl}
+
 SC_ABI_FOLDER=contracts/default
+
+ICO_END_TIMESTAMP=${settings.features.icoEndTimestamp}
 ICO_SC_ADDRESS=${settings.features.icoAddress}
+
 TOKEN_ADDRESS=${dashboard.token.address}
 TOKEN_PRICE_USD=${dashboard.token.priceUsd}
+
 WHITELIST_SC_ADDRESS=${settings.features.whitelistAddress}
 WL_OWNER_PK=${settings.features.whitelistPk}
+
 TEST_FUND_PK=
 
 RPC_TYPE=${blockchainNodeSchema}
@@ -117,7 +136,11 @@ WEB3_BLOCK_OFFSET=200
 
 DEFAULT_INVEST_GAS=${settings.blockchain.defaultInvestGas}
 
-THROTTLER_INTERVAL=20000
+COINPAYMENTS_API_KEY=${settings.exchange.settings.apiKey}
+COINPAYMENTS_API_SECRET=${settings.exchange.settings.apiSecret}
+COINPAYMENTS_API_CURRENCY1=${settings.exchange.settings.apiCurrency1}
+COINPAYMENTS_API_MERCHANT_ID=${settings.exchange.settings.apiMerchantId}
+COINPAYMENTS_API_MERCHANT_SECRET=${settings.exchange.settings.apiMerchantSecret}
 
 EMAIL_TEMPLATE_FOLDER=${settings.email.templateFolder}
 EMAIL_FROM=${settings.email.emailFrom}

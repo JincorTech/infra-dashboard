@@ -1,8 +1,7 @@
 import { injectable, inject } from "inversify";
 import { IcoDashboardDaoType, IcoDashboardDao } from "../dao/ico.dashboard.dao";
 import { Dashboard } from "../../domain/ico/dashboard";
-import { ObjectID } from "typeorm";
-import { outputTransform } from "./helpers";
+import { ObjectID } from "mongodb";
 
 export const IcoDashboardAppType = Symbol('IcoDashboardApp');
 
@@ -13,27 +12,29 @@ export class IcoDashboardApp {
   ) {
   }
 
-  async getDashboards(): Promise<any[]> {
-    return outputTransform(this.dashboardDao.getAllByUser(null));
+  async getDashboards(): Promise<Dashboard[]> {
+    return this.dashboardDao.getAllByUser(null);
   }
 
-  async createDashboard(data: object): Promise<object> {
-    const dashboard = new Dashboard();
+  async createDashboard(data: object): Promise<Dashboard> {
+    const dashboard = Dashboard.create(data);
 
     dashboard.assignFrom(data);
 
-    return outputTransform(await this.dashboardDao.save(dashboard));
+    return await this.dashboardDao.save(dashboard);
   }
 
-  async getDashboardInfo(id: string): Promise<object> {
-    return this.dashboardDao.getAllById(ObjectID.createFromHexString(id));
+  async getDashboardInfo(id: ObjectID): Promise<Dashboard> {
+    return await this.dashboardDao.getById(id);
   }
 
-  async setDashboardInfo(id: string, data: object): Promise<object> {
-    const dashboard = await this.dashboardDao.getAllById(ObjectID.createFromHexString(id));
+  async setDashboardInfo(id: ObjectID, data: object): Promise<Dashboard> {
+    const dashboard = await this.dashboardDao.getById(id);
 
     dashboard.assignFrom(data);
 
-    return outputTransform(dashboard);
+    await this.dashboardDao.save(dashboard);
+
+    return dashboard;
   }
 }

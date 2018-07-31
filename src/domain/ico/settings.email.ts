@@ -18,14 +18,14 @@ export class SettingsEmail {
 
   public settings: any;
 
-  static create(data: any) {
+  static create(data: any = {}) {
     const o = new SettingsEmail();
     o.assignFrom(data);
     o.settings = o.settings || {};
     return o;
   }
 
-  assignFrom(data: any) {
+  assignFrom(data: any = {}) {
     this.templateFolder = data.templateFolder;
     this.emailFrom = data.emailFrom;
     this.emailReferral = data.emailReferral;

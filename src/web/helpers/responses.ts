@@ -7,8 +7,8 @@ import { INTERNAL_SERVER_ERROR, OK } from 'http-status';
  * @param status
  * @param responseJson
  */
-export function responseWith(res: Response, responseJson: Object, status: number = OK) {
-  return res.status(status).json({ ...responseJson, statusCode: status });
+export function responseWith(res: Response, responseJson: any, status: number = OK) {
+  return res.status(status).json(responseJson);
 }
 
 /**

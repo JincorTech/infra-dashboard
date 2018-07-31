@@ -1,10 +1,11 @@
 import { injectable } from "inversify";
+import { ObjectID } from "mongodb";
 
 export const IcoMonitorAppType = Symbol('IcoMonitorApp');
 
 @injectable()
 export class IcoMonitorApp {
-  async getMonitorInfo(id: string): Promise<object> {
+  async getMonitorInfo(id: ObjectID): Promise<object> {
     return {
       stacks: {
         backend: {

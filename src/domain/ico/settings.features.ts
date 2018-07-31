@@ -15,13 +15,13 @@ export class SettingsFeatures {
 
   public whitelistPk: string;
 
-  static create(data: any) {
+  static create(data: any = {}) {
     const o = new SettingsFeatures();
     o.assignFrom(data);
     return o;
   }
 
-  assignFrom(data: any) {
+  assignFrom(data: any = {}) {
     this.icoAddress = data.icoAddress;
     this.icoEndTimestamp = data.icoEndTimestamp;
     this.whitelistAddress = data.whitelistAddress;

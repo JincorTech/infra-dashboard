@@ -7,6 +7,10 @@ export enum KycStatus {
   pending = 'pending'
 }
 
+export function getAllowedKycStatuses() {
+  return [KycStatus.notVerified, KycStatus.verified, KycStatus.failed];
+}
+
 export class SettingsKyc {
   @Column()
   public enabled: boolean;
@@ -22,7 +26,7 @@ export class SettingsKyc {
 
   public settings: any;
 
-  static create(data: any) {
+  static create(data: any = {}) {
     const o = new SettingsKyc();
     o.assignFrom(data);
     o.defaultStatus = o.defaultStatus || KycStatus.notVerified;
@@ -30,7 +34,7 @@ export class SettingsKyc {
     return o;
   }
 
-  assignFrom(data: any) {
+  assignFrom(data: any = {}) {
     this.enabled = data.enabled;
     this.defaultStatus = data.defaultStatus;
     this.provider = data.provider;

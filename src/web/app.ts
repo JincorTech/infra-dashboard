@@ -18,7 +18,6 @@ import {
 } from './middlewares/request.logger';
 import { InversifyExpressServer } from 'inversify-express-utils';
 import { createConnection, ConnectionOptions } from 'typeorm';
-import { resolve } from 'url';
 
 const logger = Logger.get('Process');
 

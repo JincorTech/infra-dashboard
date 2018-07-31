@@ -37,7 +37,7 @@ export default {
     ip: HTTP_IP || '0.0.0.0'
   },
   deployHelper: {
-    url: DEPLOY_HELPER_URL
+    url: DEPLOY_HELPER_URL || 'http://deployhelper:8000'
   },
   typeOrm: {
     type: 'mongodb',

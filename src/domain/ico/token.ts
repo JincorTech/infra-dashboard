@@ -18,7 +18,7 @@ export class Token {
   @Column()
   public priceUsd: number;
 
-  static create(data: any) {
+  static create(data: any = {}) {
     const o = new Token();
     o.assignFrom(data);
     o.decimals = data.decimals || 18;
@@ -26,7 +26,7 @@ export class Token {
     return o;
   }
 
-  assignFrom(data: any) {
+  assignFrom(data: any = {}) {
     this.address = data.address && web3utils.toChecksumAddress(data.address) || '';
     this.name = data.name;
     this.symbol = data.symbol;

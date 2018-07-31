@@ -15,7 +15,15 @@ export class DeployStack {
     return request.json<any>('/stacks/actions/deploy', {
       baseUrl: this.baseUrl,
       method: 'POST',
-      body: builder.buildDeployHelperJSONRequest()
+      body: builder.buildJSONDeployRequest()
+    });
+  }
+
+  async update(builder: StackServiceBuilder) {
+    return request.json<any>('/stacks/actions/update', {
+      baseUrl: this.baseUrl,
+      method: 'POST',
+      body: builder.buildJSONUpdateRequest()
     });
   }
 }

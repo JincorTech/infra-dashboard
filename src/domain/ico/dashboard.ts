@@ -1,4 +1,4 @@
-import { Column, ObjectID, ObjectIdColumn } from 'typeorm';
+import { Column, ObjectID, ObjectIdColumn, Entity } from 'typeorm';
 
 export enum DeployState {
   NEW = 'new',
@@ -19,8 +19,13 @@ const allowedDeployStateTransition = {
 };
 
 import { Token } from './token';
-import { DashboardSettings } from './settings';
+import { SettingsBlockchain } from './settings.blockchain';
+import { SettingsExchange } from './settings.exchange';
+import { SettingsKyc } from './settings.kyc';
+import { SettingsEmail } from './settings.email';
+import { SettingsFeatures } from './settings.features';
 
+@Entity()
 export class Dashboard {
   @ObjectIdColumn()
   id: ObjectID;
@@ -37,11 +42,23 @@ export class Dashboard {
   @Column()
   backendUrl: string;
 
-  @Column()
+  @Column(type => Token)
   token: Token;
 
-  @Column()
-  settings: DashboardSettings;
+  @Column(type => SettingsBlockchain)
+  settingsBlockchain: SettingsBlockchain;
+
+  @Column(type => SettingsExchange)
+  settingsExchange: SettingsExchange;
+
+  @Column(type => SettingsKyc)
+  settingsKyc: SettingsKyc;
+
+  @Column(type => SettingsEmail)
+  settingsEmail: SettingsEmail;
+
+  @Column(type => SettingsFeatures)
+  settingsFeatures: SettingsFeatures;
 
   @Column()
   deployState: string;
@@ -55,10 +72,16 @@ export class Dashboard {
   @Column()
   updatedAt: number;
 
-  static create(data: any) {
+  static create(data: any = {}) {
     const o = new Dashboard();
-    o.token = Token.create((data || {}).token);
-    o.settings = DashboardSettings.create();
+    o.token = Token.create(data.token);
+
+    o.settingsBlockchain = SettingsBlockchain.create({});
+    o.settingsExchange = SettingsExchange.create({});
+    o.settingsKyc = SettingsKyc.create({});
+    o.settingsEmail = SettingsEmail.create({});
+    o.settingsFeatures = SettingsFeatures.create({});
+
     o.createdAt = ~~(+new Date() / 1000);
     o.assignFrom(data);
     o.deployState = DeployState.NEW;
@@ -66,11 +89,11 @@ export class Dashboard {
     return o;
   }
 
-  assignFrom(data: any) {
+  assignFrom(data: any = {}) {
     this.userId = data.userId;
     this.title = data.title;
     this.frontendUrl = data.frontendUrl;
-    this.token = data.token;
+    this.token.assignFrom(data.token);
     this.backendUrl = data.backendUrl;
     this.updatedAt = ~~(+new Date() / 1000);
   }

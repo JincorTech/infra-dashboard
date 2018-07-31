@@ -5,6 +5,7 @@ import { controller, httpPost, httpGet } from 'inversify-express-utils';
 
 import { responseWith } from '../../helpers/responses';
 import { IcoMonitorAppType, IcoMonitorApp } from '../../../services/app/ico.monitor.app';
+import { objectIDFromRouteParam } from '../../helpers/ormhelpers';
 
 /**
  * Monitor controller
@@ -25,6 +26,6 @@ export class DashboardMonitorController {
     '/monitor'
   )
   async getDashboards(req: Request, res: Response): Promise<void> {
-    responseWith(res, await this.monitorApp.getMonitorInfo(req.params.id));
+    responseWith(res, await this.monitorApp.getMonitorInfo(objectIDFromRouteParam(req.params.id)));
   }
 }

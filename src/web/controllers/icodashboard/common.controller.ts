@@ -5,17 +5,18 @@ import { controller, httpPost, httpGet } from 'inversify-express-utils';
 
 import { responseWith } from '../../helpers/responses';
 import { IcoDashboardApp, IcoDashboardAppType } from '../../../services/app/ico.dashboards.app';
-import { joiValidateMiddleware } from '../../middlewares/request.validation';
+import { joiValidateMiddleware, validEthereumAddress } from '../../middlewares/request.validation';
+import { objectIDFromRouteParam } from '../../helpers/ormhelpers';
 
 const requestValidator = Joi.object().keys({
   title: Joi.string().required().disallow(''),
   frontendUrl: Joi.string().uri().required(),
   backendUrl: Joi.string().uri().required(),
   token: Joi.object().keys({
-    address: Joi.string().required(),
+    address: validEthereumAddress().required(),
     symbol: Joi.string(),
     name: Joi.string(),
-    decimal: Joi.number()
+    decimals: Joi.number().valid(0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30)
   }).required()
 });
 
@@ -59,7 +60,9 @@ export class DashboardInfoController {
     '/:id'
   )
   async getDashboardInfo(req: Request, res: Response): Promise<void> {
-    responseWith(res, await this.dashboardApp.getDashboardInfo(req.params.id));
+    const model = await this.dashboardApp.getDashboardInfo(objectIDFromRouteParam(req.params.id));
+    model
+    responseWith(res, model);
   }
 
   /**
@@ -70,6 +73,6 @@ export class DashboardInfoController {
     joiValidateMiddleware(requestValidator)
   )
   async setDashboardInfo(req: Request, res: Response): Promise<void> {
-    responseWith(res, await this.dashboardApp.setDashboardInfo(req.params.id, req.body));
+    responseWith(res, await this.dashboardApp.setDashboardInfo(objectIDFromRouteParam(req.params.id), req.body));
   }
 }

@@ -12,14 +12,14 @@ export class SettingsExchange {
 
   public settings: any;
 
-  static create(data: any) {
+  static create(data: any = {}) {
     const o = new SettingsExchange();
-    o.assignFrom(o);
+    o.assignFrom(data);
     o.settings = o.settings || {};
     return o;
   }
 
-  assignFrom(data: any) {
+  assignFrom(data: any = {}) {
     this.provider = data.provider;
     this.settings = data.settings;
   }
